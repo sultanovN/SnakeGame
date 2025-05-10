@@ -121,15 +121,18 @@
   <ItemGroup>
     <ClCompile Include="game\engine\Engine.cpp" />
     <ClCompile Include="game\engine\GameClass.cpp" />
+    <ClCompile Include="Game\Entity\Entity.cpp" />
     <ClCompile Include="game\Game.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Game\Engine\Button.h" />
     <ClInclude Include="game\engine\Color.h" />
     <ClInclude Include="game\engine\Engine.h" />
     <ClInclude Include="game\engine\GameClass.h" />
     <ClInclude Include="game\engine\GTimer.h" />
     <ClInclude Include="game\engine\RandomNumber.h" />
     <ClInclude Include="game\engine\Vector2D.h" />
+    <ClInclude Include="Game\Entity\Entity.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

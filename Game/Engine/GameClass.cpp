@@ -2,33 +2,8 @@
 #include "Engine.h"
 #include "RandomNumber.h"
 #include "GTimer.h"
-//void Game::GameMenu()
-//{
-//    if (GameMode == Inter::Menu && StartContinue.isClicking({ get_cursor_x() * 1.f, get_cursor_y() * 1.f },
-//        is_mouse_button_pressed(0) || is_key_pressed(13)))
-//    {
-//        ReSpawn();
-//        GameMode = Inter::Game;
-//    }
-//    else if (GameMode == Inter::PauseMenu && StartContinue.isClicking({ get_cursor_x() * 1.f, get_cursor_y() * 1.f },
-//        is_mouse_button_pressed(0) || is_key_pressed(13)))
-//    {
-//        GameMode = Inter::Game;
-//    }
-//    else if ((GameMode == Inter::Menu || GameMode == Inter::PauseMenu) && Exit.isClicking({ get_cursor_x() * 1.f, get_cursor_y() * 1.f },
-//        is_mouse_button_pressed(0) || is_key_pressed(13)))
-//    {
-//        schedule_quit_game();
-//    }
-//}
 
-uint8_t playerLength = 4;
-uint8_t playerLocationX = 4;
-uint8_t playerLocationY = 4;
 std::chrono::milliseconds stepTime = std::chrono::milliseconds(450);
-
-bool Started = false;
-bool GameOver = false;
 
 enum Direction
 {
@@ -41,28 +16,21 @@ enum Direction
 Direction playerDirection = UP;
 
 //x,y for each cel of Snake
-//Every move last cel moves to the cel ahead of him
 
-struct Vec
+struct MatPos
 {
     int X;
     int Y;
-
-    void operator=(Vec vec) 
-    { 
-        this->X = vec.X; 
-        this->Y = vec.Y; 
-    }
 };
 
-std::vector<Vec> SnakeCels;
+std::vector<MatPos> SnakeCels;
 const int rows = 20;
 const int cols = 20;
 bool mat[cols][rows];
 int cellSize = 20;
 int borderSize = 3;
 
-Vec Food;
+MatPos Food;
 
 //int countNeighbours(int x, int y)
 //{
@@ -77,6 +45,9 @@ Vec Food;
 //        }
 //    return count;
 //}
+
+
+
 
 void FoodSpawn()
 {
@@ -94,11 +65,12 @@ void FoodSpawn()
     Food.Y = Y;
 }
 
+// FoodSpawn needs fix, sometimes does not spawn, snake check or recursion problem
 bool FoodGetEaten()
 {
     if (SnakeCels.at(0).X == Food.X && SnakeCels.at(0).Y == Food.Y)
     {
-        SnakeCels.emplace_back(Vec{ SnakeCels.back().X + SnakeCels.back().X - SnakeCels.at(SnakeCels.size() - 2).X, 
+        SnakeCels.emplace_back(MatPos{ SnakeCels.back().X + SnakeCels.back().X - SnakeCels.at(SnakeCels.size() - 2).X,
             SnakeCels.back().Y});
         if (stepTime >= std::chrono::milliseconds(50))
         {
@@ -124,13 +96,33 @@ void StartGrid()
     }
     for (int8_t i = 8; i > 4; i--)
     {
-        SnakeCels.emplace_back(Vec{i, 4 });
+        SnakeCels.emplace_back(MatPos{i, 4 });
         mat[i][4] = 1;
     }
     FoodSpawn();
 }
 
-void Control()
+void Game::GameMenu()
+{
+    if ((GameMode == Inter::Menu || GameMode == Inter::GameOver) && StartContinue.isClicking({ get_cursor_x() * 1.f, get_cursor_y() * 1.f },
+        is_mouse_button_pressed(0) || is_key_pressed(13)))
+    {
+        StartGrid();
+        GameMode = Inter::Game;
+    }
+    else if (GameMode == Inter::PauseMenu && StartContinue.isClicking({ get_cursor_x() * 1.f, get_cursor_y() * 1.f },
+        is_mouse_button_pressed(0) || is_key_pressed(13)))
+    {
+        GameMode = Inter::Game;
+    }
+    else if ((GameMode == Inter::Menu || GameMode == Inter::PauseMenu || GameMode == Inter::GameOver) && Exit.isClicking({ get_cursor_x() * 1.f, get_cursor_y() * 1.f },
+        is_mouse_button_pressed(0) || is_key_pressed(13)))
+    {
+        schedule_quit_game();
+    }
+}
+
+void Game::Control()
 {
     
     if (is_key_pressed(VK_UP) && playerDirection != DOWN)
@@ -149,13 +141,14 @@ void Control()
     {
         playerDirection = LEFT;
     }
+    else if (is_key_pressed(VK_ESCAPE))
+    {
+        GameMode = Inter::PauseMenu;
+    }
 }
 
 void Game::Moving()
 {
-    //control each up --j, right i++ etc
-    // cel behind follows
-    //i == X 
     switch (playerDirection)
     {
     case UP:
@@ -190,7 +183,7 @@ void Game::Moving()
     if (SnakeCels.at(0).X < 0 || SnakeCels.at(0).X >= cols || SnakeCels.at(0).Y < 0
         || SnakeCels.at(0).Y >= rows)
     {
-        GameOver = true;
+        GameMode = Inter::GameOver;
     }
 }
 
@@ -203,7 +196,7 @@ void drawGrid()
             if (mat[x][y] == 1)
             {
                 DrawRectangle((x * cellSize) + ((x + 1) * borderSize),
-                    (y * cellSize) + ((y + 1) * borderSize), cellSize, cellSize, 0x00FF00);
+                    (y * cellSize) + ((y + 1) * borderSize), cellSize, cellSize, Colors::Green);
             }
             else if (mat[x][y] == 0)
             {
@@ -213,68 +206,17 @@ void drawGrid()
             if (x == Food.X && y == Food.Y)
             {
                 DrawRectangle((x * cellSize) + ((x + 1) * borderSize),
-                    (y * cellSize) + ((y + 1) * borderSize), cellSize, cellSize, 0xFF0000);
+                    (y * cellSize) + ((y + 1) * borderSize), cellSize, cellSize, Colors::Red);
             }
         }
     }
 }
 
 
-// Input does not register all time
+// Input does not register sometimes
 void Game::gameLoop(float dt)
 {
-    if (!GameOver)
-    {
-        if (!Started)
-        {
-            Started = true;
-            StartGrid();
-        }
-        Control();
-
-        
-
-        Vec temp = SnakeCels.at(0);
-        if (DidTimerEnd(timer, stepTime))
-        {
-            //moving first cel
-            Moving();
-
-            //Food
-            FoodGetEaten();
-
-            for (int cel = 1; cel < SnakeCels.size(); cel++)
-            {
-                //tail following
-                if (SnakeCels.at(0).X == SnakeCels.at(cel).X && 
-                    SnakeCels.at(0).Y == SnakeCels.at(cel).Y)
-                {
-                    GameOver = true;
-                    break;
-                }
-                if (cel == SnakeCels.size() - 1)
-                {
-                    mat[SnakeCels.at(cel).X][SnakeCels.at(cel).Y] = 0;
-                }
-                std::swap(temp, SnakeCels.at(cel));
-                StartTimer(timer);
-                /*if (x == SnakeCels.at(cel).X && y == SnakeCels.at(cel).Y)
-                {
-                    mat[x][y] = 1;
-                }
-                else
-                {
-                    mat[x][y] = 0;
-                }*/
-            }
-        }
-        
-    }
-    
-
-    
-
-    /*switch (GameMode)
+    switch (GameMode)
     {
     case Inter::Menu:
     {
@@ -283,6 +225,43 @@ void Game::gameLoop(float dt)
     }
     case Inter::Game:
     {
+        Control();
+
+        MatPos temp = SnakeCels.at(0);
+        if (DidTimerEnd(timer, stepTime))
+        {
+            // Bug: when pressing left then up instantly snake collides, but it's not vissible
+            //moving first cel
+            Moving();
+
+            //Food
+            FoodGetEaten();
+
+            for (int cel = 1; cel < SnakeCels.size(); cel++)
+            {
+                
+
+                if (cel == SnakeCels.size() - 1)
+                {
+                    mat[SnakeCels.at(cel).X][SnakeCels.at(cel).Y] = 0;
+                }
+
+                
+                //tail following
+                //Every move last cel moves to the cel ahead of it
+                std::swap(temp, SnakeCels.at(cel));
+
+                // Snake collision with itself
+                if (SnakeCels.at(0).X == SnakeCels.at(cel).X &&
+                    SnakeCels.at(0).Y == SnakeCels.at(cel).Y)
+                {
+                    GameMode = Inter::GameOver;
+                    break;
+                }
+                StartTimer(timer);
+            }
+        }
+        break;
     }
     case Inter::PauseMenu:
     {
@@ -291,13 +270,19 @@ void Game::gameLoop(float dt)
     }
     case Inter::GameOver:
     {
+        GameMenu();
         break;
     }
-    default:
-        break;
-    }*/
-
-    
+    }
+    //if (!GameOver)
+    //{
+    //    /*if (!Started)
+    //    {
+    //        Started = true;
+    //        StartGrid();
+    //    }*/
+    //    
+    //}
 }
 
 
@@ -308,12 +293,12 @@ void Game::gameDraw()
 
     //Background color
     DrawRectangle(0.f, 0.f, SCREEN_WIDTH, SCREEN_HEIGHT, 0xFFFFFF);
-    drawGrid();
-    /*switch (GameMode)
+
+    switch (GameMode)
     {
     case Inter::Game:
     {
-       
+        drawGrid();
         break;
     }
     case Inter::Menu:
@@ -328,5 +313,13 @@ void Game::gameDraw()
         Exit.Draw();
         break;
     }
-    }*/
+    case Inter::GameOver:
+    {
+        drawGrid();
+        StartContinue.Draw();
+        Exit.Draw();
+        break;
+    }
+    }
 }
+

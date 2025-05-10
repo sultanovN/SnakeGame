@@ -10,7 +10,6 @@ void PixelDraw(int x, int y, uint32_t Color)
     buffer[y][x] = Color;
 }
 
-
 //void DrawRectangle(float LocationX, float LocationY, float SizeX, float SizeY, uint32_t Color)
 //{
 //    for (int x = 0; x < SCREEN_WIDTH; x++)
@@ -23,7 +22,7 @@ void PixelDraw(int x, int y, uint32_t Color)
 //        }
 //}
 
-const char* GameWindowName = "Space Shooter";
+const char* GameWindowName = "Snake Game";
 
 static HINSTANCE hinst = 0;
 static DWORD ticks = 0;

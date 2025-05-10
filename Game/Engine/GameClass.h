@@ -1,10 +1,10 @@
 #pragma once
 #include <vector>
-#include "../Entity/Entity.h"
+#include "Button.h"
 
 class Game
 {
-    /*Button StartContinue{ { 200, 200 }, {300.f, 80.f}, 0 };
+    Button StartContinue{ { 200, 200 }, {300.f, 80.f}, 0 };
     Button Exit{ {StartContinue.GetLocation().X, StartContinue.GetLocation().Y + StartContinue.GetSize().Y * 2}, 
         StartContinue.GetSize(), 1};
 
@@ -14,7 +14,7 @@ class Game
         Game,
         PauseMenu,
         GameOver
-    };*/
+    };
 
 public:
     Game()
@@ -23,8 +23,7 @@ public:
     void Moving();
     void gameLoop(float dt);
     void gameDraw();
-    //void GameMenu();
-    //Vector2D ScreenCenter{ 1024 / 2.f , 768 / 2.f };
-    //Inter GameMode = Inter::Menu;
-    void ReSpawn();
+    void GameMenu();
+    void Control();
+    Inter GameMode = Inter::Menu;
 };
