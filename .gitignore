@@ -1,0 +1,7 @@
+.vs
+.Debug
+.x64/Debug
+SnakeGame/
+.SnakeGame.vcxproj
+.SnakeGame.vcxproj.filters
+.SnakeGame.vcxproj.user
