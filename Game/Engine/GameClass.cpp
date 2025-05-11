@@ -3,7 +3,6 @@
 #include "RandomNumber.h"
 #include "GTimer.h"
 
-std::chrono::milliseconds stepTime = std::chrono::milliseconds(450);
 
 enum Direction
 {
@@ -13,7 +12,6 @@ enum Direction
     LEFT
 };
 
-Direction playerDirection = UP;
 
 //x,y for each cel of Snake
 
@@ -22,7 +20,8 @@ struct MatPos
     int X;
     int Y;
 };
-
+std::chrono::milliseconds stepTime = std::chrono::milliseconds(450);
+Direction playerDirection = UP;
 std::vector<MatPos> SnakeCels;
 const int rows = 20;
 const int cols = 20;
@@ -46,26 +45,23 @@ MatPos Food;
 //    return count;
 //}
 
-
-
-
 void FoodSpawn()
 {
-    int X = RandomNumberInRange(0, cols);
-    int Y = RandomNumberInRange(0, rows);
-    for (auto& cel : SnakeCels)
+    int X = RandomNumberInRange(0, cols - 1);
+    int Y = RandomNumberInRange(0, rows - 1);
+    for (int i = 0; i < SnakeCels.size(); i++)
     {
-        if (X == cel.X && Y == cel.Y)
+        if (X == SnakeCels.at(i).X && Y == SnakeCels.at(i).Y)
         {
-            FoodSpawn();
+            X = RandomNumberInRange(0, cols - 1);
+            Y = RandomNumberInRange(0, rows - 1);
+            i = 0;
         }
-
     }
     Food.X = X;
     Food.Y = Y;
 }
 
-// FoodSpawn needs fix, sometimes does not spawn, snake check or recursion problem
 bool FoodGetEaten()
 {
     if (SnakeCels.at(0).X == Food.X && SnakeCels.at(0).Y == Food.Y)
@@ -74,7 +70,7 @@ bool FoodGetEaten()
             SnakeCels.back().Y});
         if (stepTime >= std::chrono::milliseconds(50))
         {
-            stepTime -= std::chrono::milliseconds(50);
+            stepTime -= std::chrono::milliseconds(25);
         }
         FoodSpawn();
         return true;
@@ -86,7 +82,7 @@ std::chrono::steady_clock::time_point timer;
 void StartGrid()
 {
     SnakeCels.clear();
-
+    stepTime = std::chrono::milliseconds(450);
     for (int i = 0; i < cols; i++)
     {
         for (int j = 0; j < rows; j++)
