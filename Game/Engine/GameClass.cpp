@@ -12,7 +12,6 @@ enum Direction
     LEFT
 };
 
-
 //x,y for each cel of Snake
 
 struct MatPos
@@ -20,7 +19,7 @@ struct MatPos
     int X;
     int Y;
 };
-std::chrono::milliseconds stepTime = std::chrono::milliseconds(450);
+std::chrono::milliseconds stepTime = std::chrono::milliseconds(150);
 Direction playerDirection = UP;
 std::vector<MatPos> SnakeCels;
 const int rows = 20;
@@ -82,6 +81,7 @@ std::chrono::steady_clock::time_point timer;
 void StartGrid()
 {
     SnakeCels.clear();
+    playerDirection = UP;
     stepTime = std::chrono::milliseconds(450);
     for (int i = 0; i < cols; i++)
     {
@@ -103,8 +103,8 @@ void Game::GameMenu()
     if ((GameMode == Inter::Menu || GameMode == Inter::GameOver) && StartContinue.isClicking({ get_cursor_x() * 1.f, get_cursor_y() * 1.f },
         is_mouse_button_pressed(0) || is_key_pressed(13)))
     {
-        StartGrid();
         GameMode = Inter::Game;
+        StartGrid();
     }
     else if (GameMode == Inter::PauseMenu && StartContinue.isClicking({ get_cursor_x() * 1.f, get_cursor_y() * 1.f },
         is_mouse_button_pressed(0) || is_key_pressed(13)))
@@ -235,17 +235,11 @@ void Game::gameLoop(float dt)
 
             for (int cel = 1; cel < SnakeCels.size(); cel++)
             {
-                
 
                 if (cel == SnakeCels.size() - 1)
                 {
                     mat[SnakeCels.at(cel).X][SnakeCels.at(cel).Y] = 0;
                 }
-
-                
-                //tail following
-                //Every move last cel moves to the cel ahead of it
-                std::swap(temp, SnakeCels.at(cel));
 
                 // Snake collision with itself
                 if (SnakeCels.at(0).X == SnakeCels.at(cel).X &&
@@ -254,6 +248,10 @@ void Game::gameLoop(float dt)
                     GameMode = Inter::GameOver;
                     break;
                 }
+
+                //tail following
+                //Every move last cel moves to the cel ahead of it
+                std::swap(temp, SnakeCels.at(cel));
                 StartTimer(timer);
             }
         }
