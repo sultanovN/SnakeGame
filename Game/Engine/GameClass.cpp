@@ -19,7 +19,7 @@ struct MatPos
     int X;
     int Y;
 };
-std::chrono::milliseconds stepTime = std::chrono::milliseconds(150);
+std::chrono::milliseconds stepTime;
 Direction playerDirection = UP;
 std::vector<MatPos> SnakeCels;
 const int rows = 20;
@@ -69,7 +69,7 @@ bool FoodGetEaten()
             SnakeCels.back().Y});
         if (stepTime >= std::chrono::milliseconds(50))
         {
-            stepTime -= std::chrono::milliseconds(25);
+            stepTime = stepTime - std::chrono::milliseconds(15);
         }
         FoodSpawn();
         return true;
@@ -82,7 +82,7 @@ void StartGrid()
 {
     SnakeCels.clear();
     playerDirection = UP;
-    stepTime = std::chrono::milliseconds(450);
+    stepTime = std::chrono::milliseconds(350);
     for (int i = 0; i < cols; i++)
     {
         for (int j = 0; j < rows; j++)
@@ -90,7 +90,7 @@ void StartGrid()
             mat[i][j] = 0;
         }
     }
-    for (int8_t i = 8; i > 4; i--)
+    for (int8_t i = 8; i > 5; i--)
     {
         SnakeCels.emplace_back(MatPos{i, 4 });
         mat[i][4] = 1;
@@ -137,7 +137,7 @@ void Game::Control()
     {
         playerDirection = LEFT;
     }
-    else if (is_key_pressed(VK_ESCAPE))
+    if (is_key_pressed(VK_ESCAPE))
     {
         GameMode = Inter::PauseMenu;
     }
@@ -193,6 +193,11 @@ void drawGrid()
             {
                 DrawRectangle((x * cellSize) + ((x + 1) * borderSize),
                     (y * cellSize) + ((y + 1) * borderSize), cellSize, cellSize, Colors::Green);
+            }
+            if (x == SnakeCels.at(0).X && y == SnakeCels.at(0).Y && mat[x][y] == 1)
+            {
+                DrawRectangle((x * cellSize) + ((x + 1) * borderSize),
+                    (y * cellSize) + ((y + 1) * borderSize), cellSize, cellSize, 0x00BB00);
             }
             else if (mat[x][y] == 0)
             {

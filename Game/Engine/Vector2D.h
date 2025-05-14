@@ -1,6 +1,14 @@
 #pragma once
 #include <cmath>
+#include "Engine.h"
 void PixelDraw(int x, int y, uint32_t Color);
+
+//#ifndef SCREEN_WIDTH
+//#define SCREEN_WIDTH 750
+//#define SCREEN_HEIGHT 750
+//#endif
+
+
 
 struct Vector2D
 {
@@ -69,9 +77,9 @@ inline float Edge(Vector2D v0, Vector2D v1, Vector2D p)
 
 inline void drawTriangle(Vector2D v0, Vector2D v1, Vector2D v2, uint32_t Color)
 {
-    for (int x = 0; x < 1024; x++)
+    for (int x = 0; x < SCREEN_WIDTH; x++)
     {
-        for (int y = 0; y < 768; y++)
+        for (int y = 0; y < SCREEN_HEIGHT; y++)
         {
             Vector2D p = { (float)x, (float)y };
 
@@ -89,9 +97,9 @@ inline void drawTriangle(Vector2D v0, Vector2D v1, Vector2D v2, uint32_t Color)
 
 inline void DrawRectangle(float LocationX, float LocationY, float SizeX, float SizeY, uint32_t Color)
 {
-    for (int x = 0; x < 1024; x++)
+    for (int x = 0; x < SCREEN_WIDTH; x++)
     {
-        for (int y = 0; y < 768; y++)
+        for (int y = 0; y < SCREEN_HEIGHT; y++)
         {
             if ((x >= LocationX && (x <= LocationX + SizeX)) && (y >= LocationY && (y <= LocationY + SizeY)))
             {

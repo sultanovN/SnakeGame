@@ -2,8 +2,8 @@
 
 #include <stdint.h>
 
-#define SCREEN_WIDTH 1024
-#define SCREEN_HEIGHT 784
+#define SCREEN_WIDTH 464
+#define SCREEN_HEIGHT 464
 
 #ifndef VK_ESCAPE
 #  define VK_ESCAPE 0x1B
