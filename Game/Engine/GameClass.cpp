@@ -67,9 +67,9 @@ bool FoodGetEaten()
     {
         SnakeCels.emplace_back(MatPos{ SnakeCels.back().X + SnakeCels.back().X - SnakeCels.at(SnakeCels.size() - 2).X,
             SnakeCels.back().Y});
-        if (stepTime >= std::chrono::milliseconds(50))
+        if (stepTime >= std::chrono::milliseconds(100))
         {
-            stepTime = stepTime - std::chrono::milliseconds(15);
+            stepTime = stepTime - std::chrono::milliseconds(10);
         }
         FoodSpawn();
         return true;
@@ -81,7 +81,7 @@ std::chrono::steady_clock::time_point timer;
 void StartGrid()
 {
     SnakeCels.clear();
-    playerDirection = UP;
+    playerDirection = RIGHT;
     stepTime = std::chrono::milliseconds(350);
     for (int i = 0; i < cols; i++)
     {
@@ -118,33 +118,74 @@ void Game::GameMenu()
     }
 }
 
+// temporary solution, 
 void Game::Control()
 {
-    
-    if (is_key_pressed(VK_UP) && playerDirection != DOWN)
-    {
-        playerDirection = UP;
-    }
-    else if (is_key_pressed(VK_DOWN) && playerDirection != UP)
-    {
-        playerDirection = DOWN;
-    }
-    else if (is_key_pressed(VK_RIGHT) && playerDirection != LEFT)
-    {
-        playerDirection = RIGHT;
-    }
-    else if (is_key_pressed(VK_LEFT) && playerDirection != RIGHT)
-    {
-        playerDirection = LEFT;
-    }
     if (is_key_pressed(VK_ESCAPE))
     {
         GameMode = Inter::PauseMenu;
     }
+    if (is_key_pressed(VK_UP) && !is_key_pressed(VK_LEFT) && !is_key_pressed(VK_RIGHT) && playerDirection != DOWN && playerDirection != UP)
+    {
+        playerDirection = UP;
+        Moving();
+        StartTimer(timer);
+    }
+    else if (is_key_pressed(VK_DOWN) && !is_key_pressed(VK_LEFT) && !is_key_pressed(VK_RIGHT) && playerDirection != UP && playerDirection != DOWN)
+    {
+        playerDirection = DOWN;
+        Moving();
+        StartTimer(timer);
+    }
+    else if (is_key_pressed(VK_RIGHT) && !is_key_pressed(VK_UP) && !is_key_pressed(VK_DOWN) && playerDirection != LEFT && playerDirection != RIGHT)
+    {
+        playerDirection = RIGHT;
+        Moving();
+        StartTimer(timer);
+    }
+    else if (is_key_pressed(VK_LEFT) && !is_key_pressed(VK_UP) && !is_key_pressed(VK_DOWN) && playerDirection != RIGHT && playerDirection != LEFT)
+    {
+        playerDirection = LEFT;
+        Moving();
+        StartTimer(timer);
+    }
+    else
+    {
+        if (DidTimerEnd(timer, stepTime))
+        {
+            Moving();
+            StartTimer(timer);
+        }
+    }
+    FoodGetEaten();
+
 }
 
 void Game::Moving()
 {
+    MatPos temp = SnakeCels.at(0);
+
+    for (int cel = 1; cel < SnakeCels.size(); cel++)
+    {
+
+        if (cel == SnakeCels.size() - 1)
+        {
+            mat[SnakeCels.at(cel).X][SnakeCels.at(cel).Y] = 0;
+        }
+
+        // Snake collision with itself
+        if (SnakeCels.at(0).X == SnakeCels.at(cel).X &&
+            SnakeCels.at(0).Y == SnakeCels.at(cel).Y)
+        {
+            GameMode = Inter::GameOver;
+            break;
+        }
+
+        //tail following
+        //Every move last cel moves to the cel ahead of it
+        std::swap(temp, SnakeCels.at(cel));
+        StartTimer(timer);
+    }
     switch (playerDirection)
     {
     case UP:
@@ -181,6 +222,7 @@ void Game::Moving()
     {
         GameMode = Inter::GameOver;
     }
+    
 }
 
 void drawGrid()
@@ -228,38 +270,8 @@ void Game::gameLoop(float dt)
     {
         Control();
 
-        MatPos temp = SnakeCels.at(0);
-        if (DidTimerEnd(timer, stepTime))
-        {
-            // Bug: when pressing left then up instantly snake collides, but it's not vissible
-            //moving first cel
-            Moving();
+        
 
-            //Food
-            FoodGetEaten();
-
-            for (int cel = 1; cel < SnakeCels.size(); cel++)
-            {
-
-                if (cel == SnakeCels.size() - 1)
-                {
-                    mat[SnakeCels.at(cel).X][SnakeCels.at(cel).Y] = 0;
-                }
-
-                // Snake collision with itself
-                if (SnakeCels.at(0).X == SnakeCels.at(cel).X &&
-                    SnakeCels.at(0).Y == SnakeCels.at(cel).Y)
-                {
-                    GameMode = Inter::GameOver;
-                    break;
-                }
-
-                //tail following
-                //Every move last cel moves to the cel ahead of it
-                std::swap(temp, SnakeCels.at(cel));
-                StartTimer(timer);
-            }
-        }
         break;
     }
     case Inter::PauseMenu:
