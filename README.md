@@ -7,4 +7,4 @@ Keyboard arrows
 windows.h\
 \_(ツ)_/
 
-![[preview.png]]
+![image](preview.png)
