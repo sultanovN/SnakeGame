@@ -4,7 +4,7 @@
 
 class Game
 {
-    Button StartContinue{ { 200, 200 }, {300.f, 80.f}, 0 };
+    Button StartContinue{ { 50, 200 }, {200.f, 80.f}, 0 };
     Button Exit{ {StartContinue.GetLocation().X, StartContinue.GetLocation().Y + StartContinue.GetSize().Y * 2}, 
         StartContinue.GetSize(), 1};
 

@@ -3,7 +3,6 @@
 #include "RandomNumber.h"
 #include "GTimer.h"
 
-
 enum Direction
 {
     UP,
@@ -12,13 +11,12 @@ enum Direction
     LEFT
 };
 
-//x,y for each cel of Snake
-
 struct MatPos
 {
     int X;
     int Y;
 };
+
 std::chrono::milliseconds stepTime;
 Direction playerDirection = UP;
 std::vector<MatPos> SnakeCels;
@@ -29,20 +27,6 @@ int cellSize = 20;
 int borderSize = 3;
 
 MatPos Food;
-
-//int countNeighbours(int x, int y)
-//{
-//    int count = 0;
-//    for (int i = x - 1; i < x + 2; i++)
-//        for (int j = y - 1; j < y + 2; j++)
-//        {
-//            if ((i != x || j != y) && (i >= 0 && i < cols) && (j >= 0 && j < rows))
-//            {
-//                count += mat[i][j];
-//            }
-//        }
-//    return count;
-//}
 
 void FoodSpawn()
 {
@@ -82,7 +66,7 @@ void StartGrid()
 {
     SnakeCels.clear();
     playerDirection = RIGHT;
-    stepTime = std::chrono::milliseconds(350);
+    stepTime = std::chrono::milliseconds(450);
     for (int i = 0; i < cols; i++)
     {
         for (int j = 0; j < rows; j++)
@@ -244,7 +228,7 @@ void drawGrid()
             else if (mat[x][y] == 0)
             {
                 DrawRectangle((x * cellSize) + ((x + 1) * borderSize),
-                    (y * cellSize) + ((y + 1) * borderSize), cellSize, cellSize, 0x000000);
+                    (y * cellSize) + ((y + 1) * borderSize), cellSize, cellSize, 0xFFFFFF);
             }
             if (x == Food.X && y == Food.Y)
             {
